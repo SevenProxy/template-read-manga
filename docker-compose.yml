@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:
+  db_postgresql:
+    container_name: db_postgresql
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=littleproblem
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=readmanga
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata: {}
