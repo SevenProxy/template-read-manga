@@ -1,17 +1,18 @@
 package main
 
 import (
+	"readmanga-api-auth/routes"
+
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	server := gin.Default()
 
-	server.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "hello",
-		})
-	})
+	api := server.Group("/api/v1")
+	{
+		routes.RegisterUserRoutes(api)
+	}
 
 	server.Run(":3001")
 }
