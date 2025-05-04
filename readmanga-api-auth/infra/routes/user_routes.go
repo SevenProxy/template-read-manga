@@ -9,9 +9,15 @@ import (
 )
 
 func RegisterUserRoutes(router *gin.RouterGroup, app application.UserApplication) {
-	router.GET("/user/auth/create-user", func(c *gin.Context) {
+	router.POST("/user/auth/create-user", func(c *gin.Context) {
 		ctx := &presenters.Context{C: c}
 		controller := controllers.NewUserController(app)
-		controller.GetUser(ctx)
+		controller.CreateUser(ctx)
+	})
+
+	router.POST("/user/auth/login", func(c *gin.Context) {
+		ctx := &presenters.Context{C: c}
+		controller := controllers.NewUserController(app)
+		controller.LoginUser(ctx)
 	})
 }
