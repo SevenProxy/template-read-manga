@@ -58,10 +58,11 @@ func (u *userController) CreateUser(ctx *presenters.Context) {
 		})
 		return
 	}
+
 	ctx.JSON(http.StatusCreated, map[string]interface{}{
 		"status":  1,
 		"message": fmt.Sprintf("Welcome to %s", user.Nickname),
-		"data":    result.ID,
+		"data":    map[string]interface{}{"id": result.ID},
 	})
 }
 
