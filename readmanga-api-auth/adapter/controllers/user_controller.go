@@ -81,8 +81,13 @@ func (u *userController) GetUser(ctx *presenters.Context) {
 }
 
 func (u *userController) LoginUser(ctx *presenters.Context) {
-	var user *domain.User
-	if err := ctx.BindJSON(&user); err != nil {
+	type LoginInput struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	var input LoginInput
+	if err := ctx.BindJSON(&input); err != nil {
 		ctx.JSON(http.StatusBadRequest, map[string]interface{}{
 			"status":  0,
 			"message": "Dados inválidos",
@@ -90,27 +95,27 @@ func (u *userController) LoginUser(ctx *presenters.Context) {
 		return
 	}
 	query, err := u.userUseCase.GetUserParams(map[string]string{
-		"email":    user.Email,
-		"password": user.Password,
+		"email":    input.Email,
+		"password": input.Password,
 	})
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, map[string]interface{}{
 			"status":  0,
-			"message": fmt.Sprintf("Login de %s é inválido!", user.Email),
+			"message": fmt.Sprintf("Credenciais inválidas"),
 		})
 		return
 	}
-	token, err := auth.GenerateJWT(query.Email, query.Password)
+	token, err := auth.GenerateJWT(query.Email)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, map[string]interface{}{
 			"status":  0,
-			"message": fmt.Sprintf("Não foi possível fazer login com '%s'", query.Email),
+			"message": fmt.Sprintf("Erro ao gerar token"),
 		})
 		return
 	}
 	ctx.JSON(http.StatusOK, map[string]interface{}{
 		"status":  1,
-		"message": fmt.Sprintf(""),
+		"message": fmt.Sprintf("Login realizado com sucesso"),
 		"data":    token,
 	})
 }

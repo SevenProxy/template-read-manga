@@ -1,6 +1,7 @@
 package application
 
 import (
+	"errors"
 	"fmt"
 	"readmanga-api-auth/domain"
 	"readmanga-api-auth/infra/repository"
@@ -48,17 +49,23 @@ func (app *userApplication) GetUserId(id int) (*domain.User, error) {
 }
 
 func (app *userApplication) GetUserParams(params map[string]string) (*domain.User, error) {
-	if password, ok := params["password"]; ok && password != "" {
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-		if err != nil {
-			return nil, err
-		}
-		params["password"] = string(hashedPassword)
+	email, ok := params["email"]
+	if !ok || email == "" {
+		return nil, errors.New("email is required")
 	}
 
-	query, err := app.repo.FindUser(params)
+	query, err := app.repo.FindUser(map[string]string{"email": params["email"]})
 	if err != nil {
 		return nil, err
+	}
+
+	if password, ok := params["password"]; ok && password != "" {
+		err := bcrypt.CompareHashAndPassword([]byte(query.Password), []byte(password))
+		if err != nil {
+			return nil, errors.New("invalid password")
+		}
+	} else {
+		return nil, errors.New("Invalid password")
 	}
 
 	return query, nil

@@ -9,10 +9,9 @@ import (
 
 var jwtKey = []byte(os.Getenv("KEY_JWT"))
 
-func GenerateJWT(email string, password string) (string, error) {
+func GenerateJWT(email string) (string, error) {
 	claims := jwt.MapClaims{
 		"email":    email,
-		"password": password,
 		"exp":      time.Now().Add(time.Hour * 24).Unix(),
 	}
 
