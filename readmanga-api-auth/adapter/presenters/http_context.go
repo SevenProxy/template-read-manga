@@ -33,3 +33,12 @@ func (ctx *Context) Status(code int) {
 func (ctx *Context) Request() *http.Request {
 	return ctx.C.Request
 }
+
+func (ctx *Context) Value(key any) (string, bool) {
+	val, ok := ctx.C.Value(key).(string)
+	return val, ok
+}
+
+func (ctx *Context) SetCookie(name, value string, maxAge int, path, domain string, secure, httpOnly bool) {
+	ctx.C.SetCookie(name, value, maxAge, path, domain, secure, httpOnly)
+}

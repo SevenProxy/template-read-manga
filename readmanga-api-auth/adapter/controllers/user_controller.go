@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"readmanga-api-auth/adapter/middleware"
 	"readmanga-api-auth/adapter/presenters"
 	"readmanga-api-auth/application"
 	"readmanga-api-auth/domain"
@@ -61,22 +62,7 @@ func (u *userController) CreateUser(ctx *presenters.Context) {
 
 	ctx.JSON(http.StatusCreated, map[string]interface{}{
 		"status":  1,
-		"message": fmt.Sprintf("Welcome to %s", user.Nickname),
-		"data":    map[string]interface{}{"id": result.ID},
-	})
-}
-
-func (u *userController) GetUser(ctx *presenters.Context) {
-	user, err := u.userUseCase.GetUserId(1)
-	if err != nil {
-		ctx.JSON(http.StatusNotFound, map[string]string{
-			"message": "Usuário não foi encontrado.",
-		})
-	}
-
-	ctx.JSON(http.StatusOK, map[string]interface{}{
-		"message": "welcome",
-		"data":    user,
+		"message": fmt.Sprintf("Welcome to %s", result.Nickname),
 	})
 }
 
@@ -90,7 +76,7 @@ func (u *userController) LoginUser(ctx *presenters.Context) {
 	if err := ctx.BindJSON(&input); err != nil {
 		ctx.JSON(http.StatusBadRequest, map[string]interface{}{
 			"status":  0,
-			"message": "Dados inválidos",
+			"message": "Unauthorized: Dados inválidos",
 		})
 		return
 	}
@@ -101,7 +87,7 @@ func (u *userController) LoginUser(ctx *presenters.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, map[string]interface{}{
 			"status":  0,
-			"message": fmt.Sprintf("Credenciais inválidas"),
+			"message": "Unauthorized: Credenciais inválidas",
 		})
 		return
 	}
@@ -109,13 +95,55 @@ func (u *userController) LoginUser(ctx *presenters.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, map[string]interface{}{
 			"status":  0,
-			"message": fmt.Sprintf("Erro ao gerar token"),
+			"message": "Unauthorized: Erro ao gerar token",
 		})
 		return
 	}
+	ctx.SetCookie(
+		"token",
+		token,
+		3600*168,
+		"/",
+		"192.168.100.12",
+		false, // secure (HTTPS). false localmente (localhots)
+		true,
+	)
 	ctx.JSON(http.StatusOK, map[string]interface{}{
 		"status":  1,
-		"message": fmt.Sprintf("Login realizado com sucesso"),
-		"data":    token,
+		"message": "Login realizado com sucesso",
+	})
+}
+
+func (u *userController) TokenLogin(ctx *presenters.Context) {
+	email, ok := ctx.Value(middleware.UserEmailKey)
+	if !ok {
+		ctx.JSON(http.StatusUnauthorized, map[string]interface{}{
+			"status":  0,
+			"message": "Unauthorized: Usuário nao autorizado.",
+		})
+		return
+	}
+
+	query, err := u.userUseCase.GetUserParams(map[string]string{
+		"email": email,
+	})
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, map[string]interface{}{
+			"status":  0,
+			"message": "Unauthorized: Usuário não autorizado.",
+		})
+		return
+	}
+
+	user := map[string]interface{}{
+		"id":        query.ID,
+		"nickname":  query.Nickname,
+		"avatar":    query.Avatar,
+		"createdAt": query.CreatedAt,
+	}
+
+	ctx.JSON(http.StatusOK, map[string]interface{}{
+		"status": 1,
+		"data":   user,
 	})
 }
