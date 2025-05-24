@@ -99,12 +99,13 @@ func (u *userController) LoginUser(ctx *presenters.Context) {
 		})
 		return
 	}
+
 	ctx.SetCookie(
 		"token",
 		token,
 		3600*168,
 		"/",
-		"192.168.100.12",
+		"",
 		false, // secure (HTTPS). false localmente (localhots)
 		true,
 	)

@@ -12,8 +12,8 @@ const UserEmailKey = "user_email"
 
 func AuthMiddlewareGin() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		fmt.Println("oi")
 		token, err := c.Cookie("token")
+		fmt.Println(token)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"status":  0,
