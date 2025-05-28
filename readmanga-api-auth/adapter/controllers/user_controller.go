@@ -100,18 +100,10 @@ func (u *userController) LoginUser(ctx *presenters.Context) {
 		return
 	}
 
-	ctx.SetCookie(
-		"token",
-		token,
-		3600*168,
-		"/",
-		"",
-		false, // secure (HTTPS). false localmente (localhots)
-		true,
-	)
 	ctx.JSON(http.StatusOK, map[string]interface{}{
 		"status":  1,
 		"message": "Login realizado com sucesso",
+		"data":    token,
 	})
 }
 

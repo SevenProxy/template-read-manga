@@ -54,7 +54,7 @@ func (app *userApplication) GetUserParams(params map[string]string) (*domain.Use
 		return nil, errors.New("Email inválido.")
 	}
 
-	query, err := app.repo.FindUser(map[string]string{"email": params["email"]})
+	query, err := app.repo.FindUser(map[string]string{"email": email})
 	if err != nil {
 		return nil, err
 	}
@@ -62,10 +62,8 @@ func (app *userApplication) GetUserParams(params map[string]string) (*domain.Use
 	if password, ok := params["password"]; ok && password != "" {
 		err := bcrypt.CompareHashAndPassword([]byte(query.Password), []byte(password))
 		if err != nil {
-			return nil, errors.New("Password inválido")
+			return nil, err
 		}
-	} else {
-		return nil, errors.New("Password inválido")
 	}
 
 	return query, nil
