@@ -8,8 +8,10 @@ import (
 )
 
 func LoadEnv() {
-	if err := godotenv.Load("../.env"); err != nil {
-		log.Fatal("Erro ao carregar .env")
+	if os.Getenv("APP_ENV") != "production" {
+		if err := godotenv.Load(".env"); err != nil {
+			log.Println("Erro ao carregar .env (modo dev)")
+		}
 	}
 }
 

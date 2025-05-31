@@ -1,6 +1,23 @@
 version: '3.9'
 
 services:
+  auth:
+    build:
+      context: ./readmanga-api-auth
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    restart: always 
+    environment:
+      - APP_ENV=production
+      - FRONT_END=http://192.168.100.12:3000
+      - DB_HOST=db_postgresql
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=littleproblem
+      - DB_NAME=readmanga
+      - DB_TIMEZONE=America/Sao_Paulo
+      - KEY_JWT=eremisa
   db_postgresql:
     container_name: db_postgresql
     image: postgres
